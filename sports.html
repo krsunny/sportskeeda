@@ -1,0 +1,101 @@
+<html>
+<head>
+    <style>
+        .row {
+            display: flex;
+            width: 100%;
+            padding-bottom: 10px;
+        }
+
+        .col1 {
+            width: 25%;
+            flex-basis: 25%;
+        }
+
+        .col2 {
+            width: 50%;
+            flex-basis: 50%;
+        }
+
+        .col {
+            margin-right: 5px;
+            padding: 0.5em;
+            position: relative;
+            border: 1px solid black;
+        }
+        .img{
+            width:150px;
+            height:100px;
+        }
+    </style>
+</head>
+<body>
+<div class="row row1">
+    <div class="col col1">
+        Some Text here
+    </div>
+    <div class="col col1">
+        Some Text here
+    </div>
+    <div class="col col2">
+        Some Text here
+    </div>
+</div>
+<div class="row row2">
+    <div class="col col2">
+        Some Text here
+    </div>
+    <div class="col col1">
+        Some Text here
+    </div>
+    <div class="col col1">
+        Some Text here
+    </div>
+</div>
+<script>
+    var xmlhttp = new XMLHttpRequest();
+    var url = "https://s3-ap-southeast-1.amazonaws.com/takehomeproject/feed.json";
+
+    xmlhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            var res = JSON.parse(this.responseText);
+            renderFunction(res);
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+
+    function renderFunction(res) {
+        var arr = res.data.rows
+        var out = '';
+        var i, j;
+        var flag=true;
+        for (i = 0; i < arr.length; i++) {
+            if(i%3==0){
+                out += '<div class="row">';
+            }
+            out+='<div class="col ';
+            if(flag){
+                if(i%3==2){
+                    out+='col2">';
+                } else {
+                    out+='col1">';
+                }
+            } else {
+                if(i%3==0){
+                    out+='col2">';
+                } else {
+                    out+='col1">';
+                }
+            }
+            out += '<img src="'+arr[i].thumbnail+'" class="img" /><br />Title: ' + arr[i].title +'<br />Post Date: ' + arr[i].post_date +'<br />Category: ' + arr[i].category + '<br />Description: ' + arr[i].description + '<br />Author: ' + arr[i].author_name +   '</div>';
+            if(i%3==2){
+                out += '</div>';
+                flag = !flag;
+            }
+        }
+        document.getElementsByTagName("body")[0].innerHTML = out;
+    }
+</script>
+</body>
+</html>

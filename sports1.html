@@ -1,0 +1,106 @@
+<html>
+<head>
+    <style>
+        .row {
+            display: flex;
+            width: 100%;
+        }
+
+        .col1 {
+            width: 25%;
+            flex-basis: 25%;
+        }
+
+        .col2 {
+            width: 50%;
+            flex-basis: 50%;
+        }
+
+        .col {
+            margin: 0;
+            padding: 0.5em;
+            position: relative;
+            border: 1px solid black;
+        }
+        .img{
+            width:150px;
+            height:100px;
+        }
+    </style>
+</head>
+<body>
+<div id="content"></div>
+<div>
+    <button id="load_more" onclick="loadMore()">Load More</button>
+</div>
+<script>
+	var xmlhttp = new XMLHttpRequest();
+	var url = "https://s3-ap-southeast-1.amazonaws.com/takehomeproject/feed.json";
+
+	xmlhttp.onreadystatechange = function () {
+		if (this.readyState == 4 && this.status == 200) {
+			var res = JSON.parse(this.responseText);
+			renderFunction(res);
+		}
+	};
+	xmlhttp.open("GET", url, true);
+	xmlhttp.send();
+
+	function renderFunction(res) {
+		var arr = res.data.rows;
+		var col_count = 0;
+		var row_count = 0;
+		window.localStorage.setItem("arr", JSON.stringify(arr));
+		window.localStorage.setItem("col_count", col_count);
+		window.localStorage.setItem("row_count", row_count);
+		loadMore();
+	}
+
+	function loadMore() {
+		var out = '';
+		var i = 0, j = 0;
+		var flag = true;
+		var arr = JSON.parse(window.localStorage.getItem("arr"));
+		var col_count = parseInt(window.localStorage.getItem("col_count"));
+		var row_count = parseInt(window.localStorage.getItem("row_count"));
+		for (i = col_count; (i < arr.length); i++) {
+			console.log(i);
+			if (i % 3 == 0) {
+				out += '<div class="row">';
+			}
+			out += '<div class="col ';
+			if (flag) {
+				if (i % 3 == 2) {
+					out += 'col2">';
+				} else {
+					out += 'col1">';
+				}
+			} else {
+				if (i % 3 == 0) {
+					out += 'col2">';
+				} else {
+					out += 'col1">';
+				}
+			}
+			out += '<img src="'+arr[i].thumbnail+'" class="img" /><br />Title: ' + arr[i].title +'<br />Post Date: ' + arr[i].post_date +'<br />Category: ' + arr[i].category + '<br />Description: ' + arr[i].description + '<br />Author: ' + arr[i].author_name +   '</div>';
+			col_count++;
+			window.localStorage.setItem("col_count", col_count);
+			if (i % 3 == 2) {
+				out += '</div>';
+				flag = !flag;
+				row_count++;
+				window.localStorage.setItem("row_count", row_count);
+				if(row_count%2==0){
+					break;
+				}
+			}
+			if(i==arr.length-1){
+				document.getElementById("load_more").innerHTML = "No more items";
+            }
+		}
+
+		document.getElementById("content").innerHTML = document.getElementById("content").innerHTML + out;
+	}
+</script>
+</body>
+</html>
